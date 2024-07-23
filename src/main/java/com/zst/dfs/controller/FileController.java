@@ -23,7 +23,7 @@ public class FileController {
     private Path uploadPath = Paths.get("d:\\", "J2EE", "zst-dfs", "upload");
 
     @PostMapping("/upload")
-    public void upload(@RequestParam("file")MultipartFile file) throws IOException {
+    public void upload(@RequestParam("file") MultipartFile file) throws IOException {
         String fileName = file.getOriginalFilename();
         File dest = Paths.get(uploadPath.toFile().getAbsolutePath(), fileName).toFile();
 
