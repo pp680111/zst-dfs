@@ -1,0 +1,3 @@
+storage:
+  file-system:
+    base-path: ./data

@@ -18,6 +18,7 @@ public class FileMetadata {
     private Map<String, String> properties;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
+    private boolean deleted = false;
 
     public byte[] serialize() {
         return JSON.toJSONString(this).getBytes(StandardCharsets.UTF_8);

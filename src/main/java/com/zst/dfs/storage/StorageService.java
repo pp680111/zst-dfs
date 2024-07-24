@@ -7,7 +7,7 @@ public interface StorageService {
      * 保存文件
      * @param file
      */
-    String save(File file);
+    FileMetadata save(File file, String originalName);
 
     File getFile(String id);
 }
