@@ -7,6 +7,9 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.FileAttributeView;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,18 +33,32 @@ public class FileSystemStorageService implements StorageService {
         try {
             FileMetadata metadata = createMetadataForFile(file, originalName);
             Path fileStoragePath = getFileStoragePath(metadata);
+            if (!Files.exists(fileStoragePath.getParent())) {
+                Files.createDirectories(fileStoragePath.getParent());
+            }
+
             metadataService.updateMetadata(metadata);
-            Files.move(file.toPath(), fileStoragePath);
+            Files.move(file.toPath(), fileStoragePath, StandardCopyOption.REPLACE_EXISTING);
+
+            return metadata;
         } catch (Exception e) {
             throw new StorageException("Failed to store file " + file.getName(), e);
         }
-
-        return null;
     }
 
     @Override
     public File getFile(String id) {
-        return null;
+        FileMetadata metadata = metadataService.getFileMetadata(id);
+        if (metadata == null) {
+            throw new StorageException("File not found");
+        }
+        Path fileStoragePath = getFileStoragePath(metadata);
+        return fileStoragePath.toFile();
+    }
+
+    @Override
+    public FileMetadata getMetadata(String id) {
+        return metadataService.getFileMetadata(id);
     }
 
     private FileMetadata createMetadataForFile(File file, String fileName) {

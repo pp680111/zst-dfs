@@ -12,4 +12,6 @@ public interface StorageService {
 //    FileMetadata append(InputStream inputStream, long start, long end, boolean ifEnd);
 
     File getFile(String id);
+
+    FileMetadata getMetadata(String id);
 }
