@@ -9,5 +9,7 @@ public interface StorageService {
      */
     FileMetadata save(File file, String originalName);
 
+//    FileMetadata append(InputStream inputStream, long start, long end, boolean ifEnd);
+
     File getFile(String id);
 }
