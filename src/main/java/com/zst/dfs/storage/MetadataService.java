@@ -25,6 +25,7 @@ public class MetadataService {
 
     public void updateMetadata(FileMetadata metadata) {
         metadataMap.put(metadata.getId(), metadata);
+        saveMetadata(metadata);
     }
 
     private void init() {
@@ -49,8 +50,10 @@ public class MetadataService {
 
     private void initMetadataMap() {
         while (true) {
+            int beginOffset = fileBuffer.position();
             int length = fileBuffer.getInt();
             if (length == 0) {
+                fileBuffer.position(beginOffset);
                 break;
             }
 
@@ -60,5 +63,11 @@ public class MetadataService {
             FileMetadata metadata = FileMetadata.fromBytes(buffer);
             metadataMap.put(metadata.getId(), metadata);
         }
+    }
+
+    private void saveMetadata(FileMetadata metadata) {
+        byte[] bytes = metadata.serialize();
+        fileBuffer.putInt(bytes.length);
+        fileBuffer.put(bytes);
     }
 }
