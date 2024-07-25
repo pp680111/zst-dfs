@@ -62,8 +62,9 @@ public class FileController {
              BufferedInputStream bis = new BufferedInputStream(fis);
              OutputStream os = response.getOutputStream();) {
             byte[] buffer = new byte[1 * 1024 * 1024];
-            while (bis.read(buffer) != -1) {
-                os.write(buffer);
+            int readBytes = 0;
+            while ((readBytes = bis.read(buffer)) != -1) {
+                os.write(buffer, 0, readBytes);
             }
             os.flush();
         } catch (Exception e) {
