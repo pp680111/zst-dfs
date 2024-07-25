@@ -1,6 +1,7 @@
 package com.zst.dfs.storage;
 
 import com.zst.dfs.exception.StorageException;
+import com.zst.dfs.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -72,7 +73,7 @@ public class FileSystemStorageService implements StorageService {
         } else {
             metadata.setFileName(metadata.getId());
         }
-
+        metadata.setSign(FileUtils.getMD5Digest(file));
         metadata.setFileSize(file.length());
         metadata.setCreateTime(LocalDateTime.now());
         metadata.setUpdateTime(LocalDateTime.now());

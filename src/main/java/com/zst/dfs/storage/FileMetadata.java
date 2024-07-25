@@ -15,6 +15,7 @@ public class FileMetadata {
     private String originalName;
     private String fileName;
     private long fileSize;
+    private String sign;
     private Map<String, String> properties;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

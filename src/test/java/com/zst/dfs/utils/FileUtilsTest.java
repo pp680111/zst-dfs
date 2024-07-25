@@ -3,6 +3,9 @@ package com.zst.dfs.utils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public class FileUtilsTest {
 
     @Test
@@ -33,5 +36,12 @@ public class FileUtilsTest {
     public void testGetMimeTypeForNullFileName() {
         String mimeType = FileUtils.getMimeType(null);
         Assertions.assertNull(mimeType); // 假设对于null文件名，返回null。这取决于实际的方法实现。
+    }
+
+    @Test
+    public void testGetMD5Digest() {
+        Path p = Paths.get(".", "zst.out");
+        System.err.println(FileUtils.getMD5Digest(p.toFile()));
+
     }
 }
