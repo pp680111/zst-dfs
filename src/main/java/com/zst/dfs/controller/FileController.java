@@ -47,29 +47,6 @@ public class FileController {
         return metadata;
     }
 
-//    @GetMapping("/download")
-//    public void download(@RequestParam("name") String name, HttpServletResponse response) {
-//        File file = Paths.get(uploadPath.toFile().getAbsolutePath(), name).toFile();
-//        if (!file.exists()) {
-//            // TODO 这里看看怎么直接返回404
-//            throw new RuntimeException("file not exists");
-//        }
-//
-//        response.setHeader("Content-Disposition", "attachment;filename=" + name);
-//
-//        try (FileInputStream fis = new FileInputStream(file);
-//             BufferedInputStream bis = new BufferedInputStream(fis);
-//             OutputStream os = response.getOutputStream();) {
-//            byte[] buffer = new byte[1 * 1024 * 1024];
-//            while (bis.read(buffer) != -1) {
-//                os.write(buffer);
-//            }
-//            os.flush();
-//        } catch (Exception e) {
-//
-//        }
-//    }
-
     @GetMapping("/download")
     public void download(@RequestParam("id") String id, HttpServletResponse response) {
         File file = storageService.getFile(id);
