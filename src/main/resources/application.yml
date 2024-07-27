@@ -1,3 +1,9 @@
 storage:
   file-system:
     base-path: ./data
+
+spring:
+  datasource:
+    username: root
+    password: avamasterA@#
+    url: jdbc:mysql://192.168.23.204:3306/dfs?useUnicode=true&characterEncoding=utf-8&useSSL=false
