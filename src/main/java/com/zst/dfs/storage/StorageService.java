@@ -1,5 +1,7 @@
 package com.zst.dfs.storage;
 
+import com.zst.dfs.storage.metadata.FileMetadata;
+
 import java.io.File;
 
 public interface StorageService {

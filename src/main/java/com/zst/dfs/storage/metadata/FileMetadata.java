@@ -1,4 +1,4 @@
-package com.zst.dfs.storage;
+package com.zst.dfs.storage.metadata;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.Getter;

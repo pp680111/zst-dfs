@@ -1,4 +1,7 @@
-package com.zst.dfs.storage;
+package com.zst.dfs.storage.metadata.filesystem;
+
+import com.zst.dfs.storage.metadata.FileMetadata;
+import com.zst.dfs.storage.metadata.MetadataService;
 
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -9,20 +12,22 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * 管理文件元数据的类
+ * 以文件存储的方式来持久化管理文件元数据的类
  */
-public class MetadataService {
+public class FileSystemMetadataService implements MetadataService {
     private MappedByteBuffer fileBuffer;
     private Map<String, FileMetadata> metadataMap = new LinkedHashMap<>();
 
-    public MetadataService() {
+    public FileSystemMetadataService() {
         init();
     }
 
+    @Override
     public FileMetadata getFileMetadata(String id) {
         return metadataMap.get(id);
     }
 
+    @Override
     public void updateMetadata(FileMetadata metadata) {
         metadataMap.put(metadata.getId(), metadata);
         saveMetadata(metadata);

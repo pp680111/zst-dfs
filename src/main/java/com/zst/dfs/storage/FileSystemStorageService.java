@@ -1,6 +1,8 @@
 package com.zst.dfs.storage;
 
 import com.zst.dfs.exception.StorageException;
+import com.zst.dfs.storage.metadata.FileMetadata;
+import com.zst.dfs.storage.metadata.MetadataService;
 import com.zst.dfs.utils.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -9,8 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.FileAttributeView;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
