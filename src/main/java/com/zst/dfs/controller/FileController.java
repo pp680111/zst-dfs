@@ -1,7 +1,7 @@
 package com.zst.dfs.controller;
 
 import com.zst.dfs.exception.StorageException;
-import com.zst.dfs.storage.FileMetadata;
+import com.zst.dfs.storage.metadata.FileMetadata;
 import com.zst.dfs.storage.StorageService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,16 @@ public class FileController {
 
         FileMetadata metadata = storageService.save(dest, fileName);
         return metadata;
+    }
+
+    /**
+     * 查询指定id的文件元数据
+     * @param id
+     * @return
+     */
+    @GetMapping("/metadata")
+    public FileMetadata getMetadata(@RequestParam("id") String id) {
+        return storageService.getMetadata(id);
     }
 
     @GetMapping("/download")
