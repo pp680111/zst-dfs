@@ -1,9 +1,11 @@
 storage:
+  node:
+    id: ${app.nodeId}
   file-system:
     base-path: ./data
 
 spring:
   datasource:
-    username: root
-    password: avamasterA@#
-    url: jdbc:mysql://192.168.23.204:3306/dfs?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: ${app.dbUsername}
+    password: ${app.dbPassword}
+    url: jdbc:mysql://${app.dbHost}:3306/dfs?useUnicode=true&characterEncoding=utf-8&useSSL=false
