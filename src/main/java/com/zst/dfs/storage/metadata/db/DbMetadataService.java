@@ -15,11 +15,26 @@ public class DbMetadataService implements MetadataService {
 
     @Override
     public FileMetadata getFileMetadata(String id) {
+        DbFileMetadata dbFileMetadata = dbFileMetadataMapper.selectById(id);
+        if (dbFileMetadata == null) {
+            return null;
+        }
+
+        return mapToFileMetadata(dbFileMetadata);
     }
 
     @Override
     public void updateMetadata(FileMetadata metadata) {
+        if (metadata == null) {
+            throw new IllegalArgumentException("metadata is null");
+        }
 
+        DbFileMetadata dbFileMetadata = mapToDbFileMetadata(metadata);
+        if (dbFileMetadataMapper.selectById(dbFileMetadata.getId()) != null) {
+            dbFileMetadataMapper.updateById(dbFileMetadata);
+        } else {
+            dbFileMetadataMapper.insert(dbFileMetadata);
+        }
     }
 
     /**
@@ -65,5 +80,7 @@ public class DbMetadataService implements MetadataService {
         if (fileMetadata.getProperties() != null) {
             dbFileMetadata.setProperties(JSONObject.toJSONString(fileMetadata.getProperties()));
         }
+
+        return dbFileMetadata;
     }
 }
