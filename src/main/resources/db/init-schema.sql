@@ -16,3 +16,11 @@ CREATE TABLE cluster_node (
     host VARCHAR(500) NOT NULL,
     heartbeat_time bigint NOT NULL
 );
+
+CREATE TABLE cluster_file_replica (
+  id BIGINT NOT NULL,
+  metadata_id VARCHAR(255) NOT NULL,
+  node_id VARCHAR(255) NOT NULL,
+  create_time DATETIME,
+  PRIMARY KEY (id)
+);
