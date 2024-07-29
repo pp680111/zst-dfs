@@ -23,19 +23,23 @@ public class ClusterNodeManager {
         if (clusterNodeService == null || fileReplicaService == null || metadataService == null || nodeProperties == null) {
             throw new IllegalArgumentException("ClusterNodeManager constructor arguments cannot be null");
         }
+        this.clusterNodeService = clusterNodeService;
+        this.fileReplicaService = fileReplicaService;
+        this.metadataService = metadataService;
+        this.nodeProperties = nodeProperties;
 
         heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
         init();
     }
 
     public void init() {
-        clusterNodeService.registerNode(nodeProperties.getNodeId(), nodeProperties.getHost());
+        clusterNodeService.registerNode(nodeProperties.getId(), nodeProperties.getAddress());
         scheduleHeartbeat();
     }
 
     private void scheduleHeartbeat() {
         heartbeatExecutor.scheduleAtFixedRate(() -> {
-            clusterNodeService.updateHeartbeat(nodeProperties.getNodeId());
+            clusterNodeService.updateHeartbeat(nodeProperties.getId());
         }, 5, 5, TimeUnit.SECONDS);
     }
 }
