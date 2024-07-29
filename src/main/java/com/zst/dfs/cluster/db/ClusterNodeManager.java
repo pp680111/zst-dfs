@@ -1,8 +1,10 @@
 package com.zst.dfs.cluster.db;
 
 import com.zst.dfs.cluster.db.clusternode.ClusterNodeService;
+import com.zst.dfs.cluster.db.filereplica.FileReplica;
 import com.zst.dfs.cluster.db.filereplica.FileReplicaService;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -11,8 +13,8 @@ public class ClusterNodeManager {
     private ClusterNodeService clusterNodeService;
     private FileReplicaService fileReplicaService;
     private NodeProperties nodeProperties;
-
     private ScheduledExecutorService heartbeatExecutor;
+    private ScheduledExecutorService fileSyncScheduler;
 
     public ClusterNodeManager(ClusterNodeService clusterNodeService,
                               FileReplicaService fileReplicaService,
@@ -25,6 +27,7 @@ public class ClusterNodeManager {
         this.nodeProperties = nodeProperties;
 
         heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
+        fileSyncScheduler = Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors());
         init();
     }
 
@@ -46,5 +49,9 @@ public class ClusterNodeManager {
         heartbeatExecutor.scheduleAtFixedRate(() -> {
             clusterNodeService.updateHeartbeat(nodeProperties.getId());
         }, 5, 5, TimeUnit.SECONDS);
+    }
+
+    private void scheduleFileSync() {
+
     }
 }

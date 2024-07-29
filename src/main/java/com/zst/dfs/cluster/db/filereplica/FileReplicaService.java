@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class FileReplicaService {
@@ -29,5 +30,8 @@ public class FileReplicaService {
         return fileReplicaMapper.selectOne(Wrappers.query(FileReplica.class)
                 .eq("metadata_id", metadataId)
                 .eq("node_id", nodeId));
+    }
+
+    public List<FileReplica> getFileReplicas(String metadataId) {
     }
 }

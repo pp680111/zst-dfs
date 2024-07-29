@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zst.dfs.cluster.db.filereplica.FileReplicaMapper">
+    <select id="queryUnsyncFileMetadataId" resultType="java.lang.String">
+        SELECT DISTINCT
+            metadata_id
+        FROM (
+            SELECT
+                metadata_id
+            FROM
+                cluster_file_replica r
+            WHERE
+                node_id != #{nodeId}
+            LIMIT 100
+        )
+    </select>
+</mapper>
