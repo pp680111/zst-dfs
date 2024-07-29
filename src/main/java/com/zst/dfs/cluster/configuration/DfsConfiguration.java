@@ -30,8 +30,7 @@ public class DfsConfiguration {
     @Bean
     public ClusterNodeManager clusterNodeManager(ClusterNodeService clusterNodeService,
                                                  FileReplicaService fileReplicaService,
-                                                 MetadataService metadataService,
                                                  NodeProperties nodeProperties) {
-        return new ClusterNodeManager(clusterNodeService, fileReplicaService, metadataService, nodeProperties);
+        return new ClusterNodeManager(clusterNodeService, fileReplicaService, nodeProperties);
     }
 }

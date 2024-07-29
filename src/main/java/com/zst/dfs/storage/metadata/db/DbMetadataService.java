@@ -2,6 +2,8 @@ package com.zst.dfs.storage.metadata.db;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONValidator;
+import com.zst.dfs.cluster.db.ClusterNodeManager;
+import com.zst.dfs.cluster.db.filereplica.FileReplicaService;
 import com.zst.dfs.storage.metadata.FileMetadata;
 import com.zst.dfs.storage.metadata.MetadataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import java.util.Optional;
 public class DbMetadataService implements MetadataService {
     @Autowired
     private DbFileMetadataMapper dbFileMetadataMapper;
+    @Autowired
+    private ClusterNodeManager clusterNodeManager;
 
     @Override
     public FileMetadata getFileMetadata(String id) {
@@ -34,6 +38,7 @@ public class DbMetadataService implements MetadataService {
             dbFileMetadataMapper.updateById(dbFileMetadata);
         } else {
             dbFileMetadataMapper.insert(dbFileMetadata);
+            clusterNodeManager.addNodeFileReplica(dbFileMetadata.getId());
         }
     }
 
