@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.Path;
+import java.time.Duration;
 
 @Service
 public class ClusterNodeService {
@@ -37,5 +38,14 @@ public class ClusterNodeService {
 
         node.setHeartbeatTime(System.currentTimeMillis());
         clusterNodeMapper.updateById(node);
+    }
+
+    public ClusterNode getNode(String nodeId) {
+        ClusterNode node = clusterNodeMapper.selectById(nodeId);
+        // TODO 这里需要改成可配置的超时时间
+        if (node.getHeartbeatTime() < System.currentTimeMillis() - Duration.ofSeconds(30).toMillis()) {
+            return node;
+        }
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package com.zst.dfs.cluster.db.filereplica;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,5 +34,14 @@ public class FileReplicaService {
     }
 
     public List<FileReplica> getFileReplicas(String metadataId) {
+        return fileReplicaMapper.selectList(Wrappers.query(FileReplica.class)
+                .eq("metadata_id", metadataId));
+    }
+
+    public Page<FileReplica> queryNodeUnsyncFiles(String nodeId, int pageNum, int pageSize) {
+        Page<FileReplica> page = Page.of(pageNum, pageSize);
+        fileReplicaMapper.selectPage(page, Wrappers.query(FileReplica.class)
+                .not(w -> w.eq("node_id", nodeId)));
+        return page;
     }
 }
