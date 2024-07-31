@@ -43,7 +43,7 @@ public class ClusterNodeService {
     public ClusterNode getNode(String nodeId) {
         ClusterNode node = clusterNodeMapper.selectById(nodeId);
         // TODO 这里需要改成可配置的超时时间
-        if (node.getHeartbeatTime() < System.currentTimeMillis() - Duration.ofSeconds(30).toMillis()) {
+        if (node.getHeartbeatTime() > (System.currentTimeMillis() - Duration.ofSeconds(30).toMillis())) {
             return node;
         }
         return null;

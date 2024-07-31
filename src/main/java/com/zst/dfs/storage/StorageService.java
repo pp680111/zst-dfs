@@ -11,7 +11,11 @@ public interface StorageService {
      */
     FileMetadata save(File file, String originalName);
 
-//    FileMetadata append(InputStream inputStream, long start, long end, boolean ifEnd);
+    /**
+     * 保存集群同步机制同步过来的文件
+     * @param file
+     */
+    void saveFileFromSync(File file, FileMetadata fileMetadata);
 
     File getFile(String id);
 

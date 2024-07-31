@@ -48,6 +48,20 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
+    public void saveFileFromSync(File file, FileMetadata fileMetadata) {
+        try {
+            Path fileStoragePath = getFileStoragePath(fileMetadata);
+            if (!Files.exists(fileStoragePath.getParent())) {
+                Files.createDirectories(fileStoragePath.getParent());
+            }
+
+            Files.move(file.toPath(), fileStoragePath, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new StorageException("Failed to store file " + file.getName(), e);
+        }
+    }
+
+    @Override
     public File getFile(String id) {
         FileMetadata metadata = metadataService.getFileMetadata(id);
         if (metadata == null) {

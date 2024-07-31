@@ -7,6 +7,7 @@ import com.zst.dfs.cluster.db.filereplica.FileReplica;
 import com.zst.dfs.cluster.db.filereplica.FileReplicaService;
 import com.zst.dfs.storage.StorageService;
 import com.zst.dfs.storage.metadata.FileMetadata;
+import com.zst.dfs.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpMethod;
@@ -17,6 +18,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -36,16 +38,18 @@ public class ClusterNodeManager {
     private ScheduledExecutorService heartbeatExecutor;
     private ExecutorService fileSyncScheduler;
     private Thread fileSyncThread;
-    private RestTemplate restTemplate;
+    private RestTemplate restTemplate = new RestTemplate();
 
     public ClusterNodeManager(ClusterNodeService clusterNodeService,
                               FileReplicaService fileReplicaService,
+                              StorageService storageService,
                               NodeProperties nodeProperties) {
-        if (clusterNodeService == null || fileReplicaService == null || nodeProperties == null) {
+        if (clusterNodeService == null || fileReplicaService == null || storageService == null || nodeProperties == null) {
             throw new IllegalArgumentException("ClusterNodeManager constructor arguments cannot be null");
         }
         this.clusterNodeService = clusterNodeService;
         this.fileReplicaService = fileReplicaService;
+        this.storageService = storageService;
         this.nodeProperties = nodeProperties;
 
         heartbeatExecutor = Executors.newSingleThreadScheduledExecutor();
@@ -56,6 +60,8 @@ public class ClusterNodeManager {
     public void init() {
         clusterNodeService.registerNode(nodeProperties.getId(), nodeProperties.getAddress());
         scheduleHeartbeat();
+        fileSyncThread = new Thread(this::scheduleFileSync);
+        fileSyncThread.start();
     }
 
     public void addNodeFileReplica(String metadataId) {
@@ -74,20 +80,28 @@ public class ClusterNodeManager {
     }
 
     private void scheduleFileSync() {
-        Page<FileReplica> fileReplicas = fileReplicaService.queryNodeUnsyncFiles(nodeProperties.getId(), 1, 10);
-        List<FileReplica> records = fileReplicas.getRecords();
-        if (records.size() == 0) {
-            log.info("节点待同步文件为空， 跳过同步流程");
-            LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(10));
-            return;
+        while (true) {
+            try {
+                LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(10));
+
+                Page<FileReplica> fileReplicas = fileReplicaService.queryNodeUnsyncFiles(nodeProperties.getId(), 1, 10);
+                List<FileReplica> records = fileReplicas.getRecords();
+                if (records.size() == 0) {
+                    log.info("节点待同步文件为空， 跳过同步流程");
+                    return;
+                }
+
+                List<String> metadataIds = records.stream().map(FileReplica::getMetadataId).distinct().toList();
+                List<CompletableFuture<Void>> syncTasks = metadataIds.stream().map(metadataId -> {
+                    return CompletableFuture.runAsync(() -> this.syncFile(metadataId), fileSyncScheduler);
+                }).toList();
+
+                CompletableFuture.allOf(syncTasks.toArray(new CompletableFuture[0])).join();
+            } catch (Exception e) {
+                log.error("同步文件调度线程执行出错", e);
+            }
+
         }
-
-        List<String> metadataIds = records.stream().map(FileReplica::getMetadataId).distinct().toList();
-        List<CompletableFuture<Void>> syncTasks = metadataIds.stream().map(metadataId -> {
-            return CompletableFuture.runAsync(() -> this.syncFile(metadataId), fileSyncScheduler);
-        }).toList();
-
-        CompletableFuture.allOf(syncTasks.toArray(new CompletableFuture[0])).join();
     }
 
     private void syncFile(String metadataId) {
@@ -96,6 +110,7 @@ public class ClusterNodeManager {
             log.error("文件元数据 {} 不存在，无法同步", metadataId);
             return;
         }
+        log.info("开始同步文件元数据 {}", metadataId);
 
         List<FileReplica> fileReplicas = fileReplicaService.getFileReplicas(metadataId);
         if (fileReplicas.isEmpty()) {
@@ -127,14 +142,24 @@ public class ClusterNodeManager {
                     Files.copy(response.getBody(), tmpFilePath);
                     File file = tmpFilePath.toFile();
 
-                    if (file.exists()) {
+                    if (!file.exists()) {
                         throw new RuntimeException("下载的文件不存在， " + tmpFilePath.toString());
                     }
 
-                    //  TODO 保存文件
+                    String syncedFileDigest = FileUtils.getMD5Digest(file);
+                    if (!syncedFileDigest.equals(fileMetadata.getSign())) {
+                        throw new RuntimeException(MessageFormat.format("同步的文件的签名摘要不一致，" +
+                                "生成的签名摘要=｛0｝,原文件签名摘要={1}，本次同步无效",
+                                syncedFileDigest, fileMetadata.getSign()));
+                    }
 
+                    storageService.saveFileFromSync(file, fileMetadata);
+                    fileReplicaService.addFileReplica(metadataId, nodeProperties.getId());
+                    log.info("完成对id={}文件的同步", metadataId);
                     return null;
                 });
+            } catch (Exception e) {
+                log.error(e.getMessage());
             }
         }
     }
